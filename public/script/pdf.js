@@ -1,11 +1,11 @@
 let imageCounter = 0;
 let savedSignatures = [];
+let selectedImage = null;
 
 
 async function GetPDFShow() {
-    const pdfUrl = 'http://localhost:5500/public/file/A4-1.pdf'; // เปลี่ยน URL ตามที่ต้องการ
+    const pdfUrl = 'http://127.0.0.1:5500//public/file/Doc3.pdf'; // เปลี่ยน URL ตามที่ต้องการ
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
-console.log('pdfjsLib :>> ', pdfjsLib);
 
     try {
         // ดึงข้อมูล PDF จาก URL
@@ -120,8 +120,8 @@ function importText() {
     const text = "Hello"; // ข้อความที่ต้องการ
     // Create a canvas to render the text
     const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 100;
+    canvas.width = 400; // เพิ่มความกว้าง
+    canvas.height = 200; // เพิ่มความสูง
     const context = canvas.getContext('2d');
 
     // Set font and size for the text
@@ -138,7 +138,6 @@ function importText() {
     textImage.src = canvas.toDataURL(); // Convert canvas (text only) to PNG
     textImage.draggable = true; // ทำให้ภาพสามารถลากได้
 
-
     textImage.onload = function () {
         let wrapper = document.createElement('div');
         wrapper.className = 'signature-wrapper';
@@ -147,97 +146,108 @@ function importText() {
         wrapper.appendChild(textImage);
 
         // Append the wrapper (containing text) to .saved-signatures
-        document.querySelector('.saved-signatures').appendChild(wrapper);
-
-        
+        // document.querySelector('.saved-signatures').appendChild(wrapper);
     };
 }
 
-function importImage(imageUrl) {
-    // ใช้ fetch เพื่อนำเข้าภาพจาก URL
-    fetch(imageUrl)
-        .then(response => {
-            // ตรวจสอบว่า Response เป็น Ok หรือไม่
-            return response.blob(); // แปลง Response เป็น Blob
-        })
-        .then(blob => {
-            // สร้างไฟล์จาก Blob
-            const file = new File([blob], 'imageSteam.png', { type: blob.type }); // ตั้งชื่อไฟล์และประเภท
 
-            // สร้าง Image element สำหรับแสดงภาพ
-            const savedImg = new Image();
-            const reader = new FileReader();
+// function importImage(imageUrl) {
+//     // ใช้ fetch เพื่อนำเข้าภาพจาก URL
+//     fetch(imageUrl)
+//         .then(response => {
+//             // ตรวจสอบว่า Response เป็น Ok หรือไม่
+//             return response.blob(); // แปลง Response เป็น Blob
+//         })
+//         .then(blob => {
+//             // สร้างไฟล์จาก Blob
+//             const file = new File([blob], 'imageSteam.png', { type: blob.type }); // ตั้งชื่อไฟล์และประเภท
+
+//             // สร้าง Image element สำหรับแสดงภาพ
+//             const savedImg = new Image();
+//             const reader = new FileReader();
             
-            // อ่านไฟล์เป็น data URL
-            reader.onload = function (e) {
-                savedImg.src = e.target.result; // ใช้ผลลัพธ์จาก FileReader
-                savedImg.draggable = true; // ทำให้ภาพสามารถลากได้
+//             // อ่านไฟล์เป็น data URL
+//             reader.onload = function (e) {
+//                 savedImg.src = e.target.result; // ใช้ผลลัพธ์จาก FileReader
+//                 savedImg.draggable = true; // ทำให้ภาพสามารถลากได้
 
-                savedImg.ondragstart = function (event) {
-                    event.dataTransfer.setData('text/plain', savedImg.src); // ตั้งค่า dataTransfer สำหรับลากภาพ
-                };
+//                 savedImg.ondragstart = function (event) {
+//                     event.dataTransfer.setData('text/plain', savedImg.src); // ตั้งค่า dataTransfer สำหรับลากภาพ
+//                 };
 
-                // เมื่อภาพถูกโหลด ให้เพิ่มไปที่ wrapper
-                let wrapper = document.createElement('div');
-                wrapper.className = 'signature-wrapper';
-                wrapper.appendChild(savedImg);
+//                 // เมื่อภาพถูกโหลด ให้เพิ่มไปที่ wrapper
+//                 let wrapper = document.createElement('div');
+//                 wrapper.className = 'signature-wrapper';
+//                 wrapper.appendChild(savedImg);
                 
-                // Append the wrapper (containing image) to .saved-signatures
-                document.querySelector('.saved-signatures').appendChild(wrapper);
-            };
+//                 // Append the wrapper (containing image) to .saved-signatures
+//                 document.querySelector('.saved-signatures').appendChild(wrapper);
+//             };
 
-            // อ่านไฟล์
-            reader.readAsDataURL(file);
-        })
-        .catch(error => {
-            console.error('Error fetching the image:', error);
-        });
-}
+//             // อ่านไฟล์
+//             reader.readAsDataURL(file);
+//         })
+//         .catch(error => {
+//             console.error('Error fetching the image:', error);
+//         });
+// }
 
-function importTextAndImage() {
-    const imageUrl = "http://localhost:5500/public/image/imageSteam.png"; // URL ของภาพ
+// function importTextAndImage() {
+//     const imageUrl = "http://localhost:5500/public/image/imageSteam.png"; // URL ของภาพ
 
-    importText(); // เรียกใช้ฟังก์ชัน importText
-    importImage(imageUrl); // เรียกใช้ฟังก์ชัน importImage
-}
+//     // importText(); // เรียกใช้ฟังก์ชัน importText
+//     importImage(imageUrl); // เรียกใช้ฟังก์ชัน importImage
+// }
 
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
+// function selectImage(imageElement) {
+//     // ลบคลาสที่เคยเลือกก่อนหน้านี้
+//     document.querySelectorAll('.saved-signatures img').forEach(img => {
+//         img.classList.remove('selected');
+//     });
 
-function handleDrop(e) {
-    preventDefaults(e);
-    var dt = e.dataTransfer;
-    var files = dt.files;
-    console.log('files :>> ', files);
+//     // เพิ่มคลาส selected ไปยังรูปที่คลิก
+//     imageElement.classList.add('selected');
+//     selectedImage = imageElement.src; // เก็บ URL ของรูปที่เลือก
+// }
 
-    const pdfData = 'http://localhost:5500/public/file/A4-1.pdf'; 
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    const pdfContainer = document.getElementById('pdf-container');
-    const scrollPosition = pdfContainer.scrollTop + pdfContainer.clientHeight / 2;
 
-    // const pdf = pdfjsLib.getDocument(pdfUrl).promise;
+// function preventDefaults(e) {
+//     e.preventDefault();
+//     e.stopPropagation();
+// }
 
-    pdfjsLib.getDocument(pdfData).promise.then(pdf => {
-        let pageNumber = 1;
+// function handleDrop(e) {
+//     preventDefaults(e);
+//     var dt = e.dataTransfer;
+//     var files = dt.files;
+//     console.log('files :>> ', files);
 
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            const container = document.getElementById('page-' + pageNum);
-            if (container) {
-                if (scrollPosition >= container.offsetTop && scrollPosition <= container.offsetTop + container.clientHeight) {
-                    pageNumber = pageNum;
-                    break;
-                }
-            }
-        }
+//     const pdfData = 'http://localhost:5500/public/file/A4-1.pdf'; 
+//     const pdfjsLib = window['pdfjs-dist/build/pdf'];
+//     const pdfContainer = document.getElementById('pdf-container');
+//     const scrollPosition = pdfContainer.scrollTop + pdfContainer.clientHeight / 2;
 
-        // ตรวจสอบว่ามีไฟล์ที่ลากเข้ามาหรือไม่
+//     // const pdf = pdfjsLib.getDocument(pdfUrl).promise;
+
+//     pdfjsLib.getDocument(pdfData).promise.then(pdf => {
+//         let pageNumber = 1;
+
+//         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+//             const container = document.getElementById('page-' + pageNum);
+//             if (container) {
+//                 if (scrollPosition >= container.offsetTop && scrollPosition <= container.offsetTop + container.clientHeight) {
+//                     pageNumber = pageNum;
+//                     break;
+//                 }
+//             }
+//         }
+
+//         // ตรวจสอบว่ามีไฟล์ที่ลากเข้ามาหรือไม่
         
-            handleFiles(files, pageNumber);
+//             handleFiles(files, pageNumber);
       
-    });
-}
+//     });
+// }
 
 function handleFiles(files, pageNumber) {
     if (files.length > 0) {
@@ -252,8 +262,8 @@ function handleFiles(files, pageNumber) {
                     img.style.position = 'absolute';
                     img.style.left = '0px'; // ตำแหน่ง x
                     img.style.top = '0px'; // ตำแหน่ง y
-                    img.style.width = img.width / 2 + 'px'; // ความกว้างของรูปภาพ
-                    img.style.height = img.height / 2 + 'px';// ความสูงของรูปภาพ
+                    img.style.width = img.width
+                    img.style.height = img.height 
 
                     // Set a unique id for the img element
                     let imageId = `image-${imageCounter}`;
@@ -292,6 +302,17 @@ function handleFiles(files, pageNumber) {
 //     img.src = imageSrc; // กำหนด source ของภาพที่ต้องการเพิ่ม
 // }
 
+
+// function addImageSelectListeners() {
+//     document.querySelectorAll('.saved-signatures img').forEach(img => {
+//         // เมื่อคลิกที่รูป จะเรียกใช้ selectImage
+//         img.addEventListener('click', function() {
+//             selectImage(this); // ส่ง element ของภาพที่คลิกเข้าไปใน selectImage
+//         });
+//     });
+// }
+
+
 function dragMoveListener(event) {
     var target = event.target
     // keep the dragged position in the data-x/data-y attributes
@@ -308,7 +329,7 @@ function dragMoveListener(event) {
 
 $(document).ready(function () {
     GetPDFShow()
-    importTextAndImage()
+    // importTextAndImage()
     let imageId = null;
 
     const {
@@ -402,6 +423,53 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on('click', "#addButton", function() {
+
+        // สร้างข้อความ "Hello" ในรูปแบบภาพ
+        const canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 100;
+        const context = canvas.getContext('2d');
+    
+        // Set font and size for the text
+        context.font = "30px Arial";
+        context.fillStyle = "black";
+        context.fillText("Hello", 50, 50);
+    
+        // แปลงข้อความใน canvas ให้เป็น image URL
+        const imageUrl = canvas.toDataURL();
+    
+        // แปลง image URL เป็น blob แล้วส่งไปยัง handleFiles
+        fetch(imageUrl)
+            .then(response => response.blob())
+            .then(blob => {
+                const file = new File([blob], 'textImage.png', { type: blob.type });
+                const files = [file];
+    
+                // กำหนดตำแหน่งการเพิ่มรูป (หน้าที่กำหนด)
+                const pdfData = 'http://127.0.0.1:5500//public/file/Doc3.pdf'; 
+                const pdfjsLib = window['pdfjs-dist/build/pdf'];
+                const pdfContainer = document.getElementById('pdf-container');
+                const scrollPosition = pdfContainer.scrollTop + pdfContainer.clientHeight / 2;
+    
+                pdfjsLib.getDocument(pdfData).promise.then(pdf => {
+                    let pageNumber = 1;
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        const container = document.getElementById('page-' + pageNum);
+                        if (container) {
+                            if (scrollPosition >= container.offsetTop && scrollPosition <= container.offsetTop + container.clientHeight) {
+                                pageNumber = pageNum;
+                                break;
+                            }
+                        }
+                    }
+    
+                    // ส่งค่าไปยังฟังก์ชัน handleFiles
+                    handleFiles(files, pageNumber);
+                });
+            });
+    });
+
 
         //* Delete Image Click Backspace 
         $(document).keydown(function(event) {
@@ -437,83 +505,83 @@ $(document).ready(function () {
 
     
         //*---------------------------------------- Setting Drag Move ----------------------------------------*
-        var dropArea = document.getElementById('pdf-container');
+        // var dropArea = document.getElementById('pdf-container');
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
+        // ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        //     dropArea.addEventListener(eventName, preventDefaults, false);
+        // });
     
-        // เพิ่มอีเวนต์เพื่อเปลี่ยนรูปแบบเมื่อมีการลากไฟล์เข้ามาในพื้นที่ drop-area
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => {
-                dropArea.style.backgroundColor = '#f0f0f0';
-            }, false);
-        });
+        // // เพิ่มอีเวนต์เพื่อเปลี่ยนรูปแบบเมื่อมีการลากไฟล์เข้ามาในพื้นที่ drop-area
+        // ['dragenter', 'dragover'].forEach(eventName => {
+        //     dropArea.addEventListener(eventName, () => {
+        //         dropArea.style.backgroundColor = '#f0f0f0';
+        //     }, false);
+        // });
     
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => {
-                dropArea.style.backgroundColor = '';
-            }, false);
-        });
+        // ['dragleave', 'drop'].forEach(eventName => {
+        //     dropArea.addEventListener(eventName, () => {
+        //         dropArea.style.backgroundColor = '';
+        //     }, false);
+        // });
     
-        // อีเวนต์สำหรับการปล่อยไฟล์ลงใน drop-area
-        dropArea.addEventListener('drop', handleDrop, false);
+        // // อีเวนต์สำหรับการปล่อยไฟล์ลงใน drop-area
+        // dropArea.addEventListener('drop', handleDrop, false);
     
         interact('.resize-drag')
-            .resizable({
-                // resize from all edges and corners
-                edges: {
-                    left: true,
-                    right: true,
-                    bottom: true,
-                    top: true
-                },
+            // .resizable({
+            //     // resize from all edges and corners
+            //     edges: {
+            //         left: true,
+            //         right: true,
+            //         bottom: true,
+            //         top: true
+            //     },
     
-                listeners: {
-                    move(event) {
-                        var target = event.target
-                        var x = (parseFloat(target.getAttribute('data-x')) || 0)
-                        var y = (parseFloat(target.getAttribute('data-y')) || 0)
+            //     listeners: {
+            //         move(event) {
+            //             var target = event.target
+            //             var x = (parseFloat(target.getAttribute('data-x')) || 0)
+            //             var y = (parseFloat(target.getAttribute('data-y')) || 0)
     
-                        // update the element's style
-                        target.style.width = event.rect.width + 'px'
-                        target.style.height = event.rect.height + 'px'
+            //             // update the element's style
+            //             target.style.width = event.rect.width + 'px'
+            //             target.style.height = event.rect.height + 'px'
     
-                        // translate when resizing from top or left edges
-                        x += event.deltaRect.left
-                        y += event.deltaRect.top
+            //             // translate when resizing from top or left edges
+            //             x += event.deltaRect.left
+            //             y += event.deltaRect.top
     
-                        target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
+            //             target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
     
-                        target.setAttribute('data-x', x)
-                        target.setAttribute('data-y', y)
-                        target.textContent = Math.round(event.rect.width) + '\u00D7' + Math.round(event.rect.height)
+            //             target.setAttribute('data-x', x)
+            //             target.setAttribute('data-y', y)
+            //             target.textContent = Math.round(event.rect.width) + '\u00D7' + Math.round(event.rect.height)
     
-                        target.classList.add('resizing')
-                    },
-                    end(event) {
-                        // Hide border when resizing ends
-                        event.target.classList.remove('resizing')
-                    }
+            //             target.classList.add('resizing')
+            //         },
+            //         end(event) {
+            //             // Hide border when resizing ends
+            //             event.target.classList.remove('resizing')
+            //         }
                   
-                },
-                modifiers: [
-                    // keep the edges inside the parent
-                    interact.modifiers.restrictEdges({
-                        outer: 'parent'
-                    }),
+            //     },
+            //     modifiers: [
+            //         // keep the edges inside the parent
+            //         interact.modifiers.restrictEdges({
+            //             outer: 'parent'
+            //         }),
     
-                    // minimum size
-                    interact.modifiers.restrictSize({
-                        min: {
-                            width: 100,
-                            height: 50
-                        }
-                    })
-                ],
+            //         // minimum size
+            //         interact.modifiers.restrictSize({
+            //             min: {
+            //                 width: 100,
+            //                 height: 50
+            //             }
+            //         })
+            //     ],
     
-                inertia: true
-            })
+            //     inertia: true
+            // })
             .draggable({
                 listeners: {
                     move: window.dragMoveListener,
